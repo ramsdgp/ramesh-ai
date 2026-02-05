@@ -13,50 +13,85 @@ from isf_simulation import (
 
 
 st.set_page_config(
-    page_title="ISF Furnace – Zinc Plant Simulator",
+    page_title="ISF Zinc Operations Dashboard",
     layout="wide",
 )
 
-# Global HTML/CSS template for page chrome and KPI styling
+# Global HTML/CSS template for page chrome and KPI styling,
+# inspired by the ISF Zinc Operations web dashboard.
 st.markdown(
     """
     <style>
+    body {
+        background-color: #020617;
+    }
     .page-header {
-        padding: 0.5rem 0 1.5rem 0;
-        border-bottom: 1px solid #e0e0e0;
+        padding: 0.75rem 0 1.25rem 0;
+        border-bottom: 1px solid #1f2937;
         margin-bottom: 1rem;
     }
     .page-header h1 {
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.15rem;
+        font-size: 1.8rem;
+        color: #e5e7eb;
     }
     .page-header p {
-        color: #666666;
+        color: #9ca3af;
         font-size: 0.95rem;
         margin-bottom: 0;
     }
 
     .kpi-card {
-        background-color: #f9fafb;
-        border-radius: 0.5rem;
+        background: #020617;
+        border-radius: 0.75rem;
         padding: 0.75rem 1rem;
-        border: 1px solid #e5e7eb;
+        border: 1px solid #1f2937;
         margin-bottom: 0.75rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.45);
     }
     .kpi-title {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
-        color: #6b7280;
+        letter-spacing: 0.06em;
+        color: #9ca3af;
         margin-bottom: 0.25rem;
     }
     .kpi-value {
         font-size: 1.4rem;
         font-weight: 600;
-        color: #111827;
+        color: #f9fafb;
     }
 
     .section-title {
         margin-top: 1.5rem;
         margin-bottom: 0.5rem;
+        color: #e5e7eb;
+    }
+
+    .stage-card {
+        background: #020617;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid #1f2937;
+        margin-bottom: 0.75rem;
+    }
+    .stage-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #e5e7eb;
+        margin-bottom: 0.15rem;
+    }
+    .stage-temp {
+        font-size: 0.95rem;
+        color: #e5e7eb;
+    }
+    .stage-status-normal {
+        font-size: 0.8rem;
+        color: #22c55e;
+    }
+    .stage-status-alert {
+        font-size: 0.8rem;
+        color: #f97316;
     }
 
     .footer-note {
@@ -67,8 +102,8 @@ st.markdown(
     </style>
 
     <div class="page-header">
-        <h1>Imperial Smelting Furnace (ISF) – Zinc Production Simulator</h1>
-        <p>Steady‑state mass balance with SOP (ISF‑SOP‑001) compliance checks.</p>
+        <h1>⚡ ISF Zinc Operations</h1>
+        <p>Imperial Smelting Furnace – real‑time style monitoring with SOP (ISF‑SOP‑001) checks.</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -196,7 +231,7 @@ with col1:
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="kpi-card">', unsafe_allow_html=True)
-    st.markdown('<div class="kpi-title">Zn metal production (t/h)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="kpi-title">Today&#39;s Zn output (t/h)</div>', unsafe_allow_html=True)
     st.markdown(
         f'<div class="kpi-value">{result.zn_metal_production_tph():.2f}</div>',
         unsafe_allow_html=True,
@@ -205,7 +240,7 @@ with col1:
 
 with col2:
     st.markdown('<div class="kpi-card">', unsafe_allow_html=True)
-    st.markdown('<div class="kpi-title">Coke energy intensity (GJ/t Zn)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="kpi-title">Overall energy intensity (GJ/t Zn)</div>', unsafe_allow_html=True)
     st.markdown(
         f'<div class="kpi-value">{result.kpi_coke_rate_GJ_per_tZn():.2f}</div>',
         unsafe_allow_html=True,
@@ -214,7 +249,7 @@ with col2:
 
 with col3:
     st.markdown('<div class="kpi-card">', unsafe_allow_html=True)
-    st.markdown('<div class="kpi-title">Slag/Feed mass ratio</div>', unsafe_allow_html=True)
+    st.markdown('<div class="kpi-title">Slag‑to‑feed ratio</div>', unsafe_allow_html=True)
     st.markdown(
         f'<div class="kpi-value">{compliance.slag_to_feed_ratio:.3f}</div>',
         unsafe_allow_html=True,
@@ -222,7 +257,7 @@ with col3:
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="kpi-card">', unsafe_allow_html=True)
-    st.markdown('<div class="kpi-title">Residual Zn in slag (wt%)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="kpi-title">Zn in slag (wt%)</div>', unsafe_allow_html=True)
     st.markdown(
         f'<div class="kpi-value">{compliance.residual_zn_in_slag_wtfrac*100.0:.2f}</div>',
         unsafe_allow_html=True,
@@ -236,6 +271,68 @@ with col3:
         unsafe_allow_html=True,
     )
     st.markdown('</div>', unsafe_allow_html=True)
+
+# Process flow status section (Sintering / Smelting / Condensation / Slag)
+st.markdown('<h3 class="section-title">Process Flow Status</h3>', unsafe_allow_html=True)
+pf_col1, pf_col2, pf_col3, pf_col4 = st.columns(4)
+
+def status_class(ok: bool | None) -> str:
+    if ok is None:
+        return "stage-status-alert"
+    return "stage-status-normal" if ok else "stage-status-alert"
+
+with pf_col1:
+    st.markdown(
+        f"""
+        <div class="stage-card">
+            <div class="stage-title">Sintering</div>
+            <div class="stage-temp">{op.sinter_preheat_temp_C:.0f}°C</div>
+            <div class="{status_class(compliance.sinter_preheat_temp_within_spec)}">
+                {"Normal" if compliance.sinter_preheat_temp_within_spec else "Check"}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with pf_col2:
+    st.markdown(
+        f"""
+        <div class="stage-card">
+            <div class="stage-title">Smelting</div>
+            <div class="stage-temp">{op.reduction_zone_temp_C:.0f}°C</div>
+            <div class="{status_class(True)}">
+                Normal
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with pf_col3:
+    st.markdown(
+        f"""
+        <div class="stage-card">
+            <div class="stage-title">Condensation</div>
+            <div class="stage-temp">{op.lead_splash_temp_C:.0f}°C</div>
+            <div class="{status_class(compliance.lead_splash_temp_within_spec)}">
+                {"Normal" if compliance.lead_splash_temp_within_spec else "Check"}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with pf_col4:
+    st.markdown(
+        f"""
+        <div class="stage-card">
+            <div class="stage-title">Slag Management</div>
+            <div class="stage-temp">Slag/Feed {compliance.slag_to_feed_ratio*100.0:.1f}%</div>
+            <div class="{status_class(compliance.slag_to_feed_within_limit)}">
+                {"Normal" if compliance.slag_to_feed_within_limit else "Check"}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 st.markdown('<h3 class="section-title">SOP Compliance (ISF‑SOP‑001)</h3>', unsafe_allow_html=True)
 
