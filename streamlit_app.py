@@ -17,8 +17,62 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("Imperial Smelting Furnace (ISF) – Zinc Production Simulator")
-st.caption("Steady‑state mass balance with SOP (ISF‑SOP‑001) compliance checks.")
+# Global HTML/CSS template for page chrome and KPI styling
+st.markdown(
+    """
+    <style>
+    .page-header {
+        padding: 0.5rem 0 1.5rem 0;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 1rem;
+    }
+    .page-header h1 {
+        margin-bottom: 0.25rem;
+    }
+    .page-header p {
+        color: #666666;
+        font-size: 0.95rem;
+        margin-bottom: 0;
+    }
+
+    .kpi-card {
+        background-color: #f9fafb;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 0.75rem;
+    }
+    .kpi-title {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: #6b7280;
+        margin-bottom: 0.25rem;
+    }
+    .kpi-value {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .section-title {
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .footer-note {
+        margin-top: 2rem;
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+    </style>
+
+    <div class="page-header">
+        <h1>Imperial Smelting Furnace (ISF) – Zinc Production Simulator</h1>
+        <p>Steady‑state mass balance with SOP (ISF‑SOP‑001) compliance checks.</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 @st.cache_data
@@ -133,23 +187,57 @@ def stream_to_df(name: str, elements: dict[str, float]) -> pd.DataFrame:
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.subheader("Production KPIs")
-    st.metric("Zinc recovery to metal (%)", f"{result.kpi_zinc_recovery():.1f}")
-    st.metric("Zn metal production (t/h)", f"{result.zn_metal_production_tph():.2f}")
+    st.markdown('<div class="kpi-card">', unsafe_allow_html=True)
+    st.markdown('<div class="kpi-title">Zinc recovery to metal (%)</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="kpi-value">{result.kpi_zinc_recovery():.1f}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="kpi-card">', unsafe_allow_html=True)
+    st.markdown('<div class="kpi-title">Zn metal production (t/h)</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="kpi-value">{result.zn_metal_production_tph():.2f}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with col2:
-    st.subheader("Energy KPI")
-    st.metric("Coke energy intensity (GJ/t Zn)", f"{result.kpi_coke_rate_GJ_per_tZn():.2f}")
+    st.markdown('<div class="kpi-card">', unsafe_allow_html=True)
+    st.markdown('<div class="kpi-title">Coke energy intensity (GJ/t Zn)</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="kpi-value">{result.kpi_coke_rate_GJ_per_tZn():.2f}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with col3:
-    st.subheader("Slag & Purity")
-    st.metric("Slag/Feed mass ratio", f"{compliance.slag_to_feed_ratio:.3f}")
-    st.metric("Residual Zn in slag (wt%)", f"{compliance.residual_zn_in_slag_wtfrac*100.0:.2f}")
-    st.metric("Zn product purity (wt%)", f"{compliance.zinc_product_purity_wtfrac*100.0:.2f}")
+    st.markdown('<div class="kpi-card">', unsafe_allow_html=True)
+    st.markdown('<div class="kpi-title">Slag/Feed mass ratio</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="kpi-value">{compliance.slag_to_feed_ratio:.3f}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
+    st.markdown('<div class="kpi-card">', unsafe_allow_html=True)
+    st.markdown('<div class="kpi-title">Residual Zn in slag (wt%)</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="kpi-value">{compliance.residual_zn_in_slag_wtfrac*100.0:.2f}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown("---")
-st.subheader("SOP Compliance (ISF‑SOP‑001)")
+    st.markdown('<div class="kpi-card">', unsafe_allow_html=True)
+    st.markdown('<div class="kpi-title">Zn product purity (wt%)</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="kpi-value">{compliance.zinc_product_purity_wtfrac*100.0:.2f}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('<h3 class="section-title">SOP Compliance (ISF‑SOP‑001)</h3>', unsafe_allow_html=True)
 
 def status_tag(ok: bool | None) -> str:
     if ok is None:
@@ -199,9 +287,10 @@ compliance_rows = [
 df_compliance = pd.DataFrame(compliance_rows)
 st.table(df_compliance)
 
-
-st.markdown("---")
-st.subheader("Stream Mass Balance (Elemental, kg/h)")
+st.markdown(
+    '<h3 class="section-title">Stream Mass Balance (Elemental, kg/h)</h3>',
+    unsafe_allow_html=True,
+)
 
 tab_feed, tab_coke, tab_metal, tab_slag, tab_gas = st.tabs(
     ["Feed", "Coke", "Metal", "Slag", "Off‑gas"]
@@ -218,3 +307,10 @@ with tab_slag:
 with tab_gas:
     st.table(stream_to_df("Off‑gas", result.gas.elements_kgph))
 
+st.markdown(
+    '<div class="footer-note">'
+    "This simulator is for educational and conceptual purposes only, "
+    "not detailed plant design."
+    "</div>",
+    unsafe_allow_html=True,
+)
