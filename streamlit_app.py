@@ -23,7 +23,7 @@ st.markdown(
     """
     <style>
     body {
-        background-color: #020617;
+        background-color: #020618;
     }
     .page-header {
         padding: 0.75rem 0 1.25rem 0;
@@ -411,3 +411,4 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True,
 )
+
