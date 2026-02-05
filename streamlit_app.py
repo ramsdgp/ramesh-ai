@@ -23,7 +23,8 @@ st.markdown(
     """
     <style>
     body {
-        background-color: #020618;
+        background-color: #020617;
+        color: #1d4ed8; /* default text blue */
     }
     .page-header {
         padding: 0.75rem 0 1.25rem 0;
@@ -33,10 +34,10 @@ st.markdown(
     .page-header h1 {
         margin-bottom: 0.15rem;
         font-size: 1.8rem;
-        color: #e5e7eb;
+        color: #1d4ed8;
     }
     .page-header p {
-        color: #9ca3af;
+        color: #3b82f6;
         font-size: 0.95rem;
         margin-bottom: 0;
     }
@@ -53,19 +54,19 @@ st.markdown(
         font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        color: #9ca3af;
+        color: #60a5fa;
         margin-bottom: 0.25rem;
     }
     .kpi-value {
         font-size: 1.4rem;
         font-weight: 600;
-        color: #f9fafb;
+        color: #1d4ed8;
     }
 
     .section-title {
         margin-top: 1.5rem;
         margin-bottom: 0.5rem;
-        color: #e5e7eb;
+        color: #1d4ed8;
     }
 
     .stage-card {
@@ -78,12 +79,12 @@ st.markdown(
     .stage-title {
         font-size: 0.9rem;
         font-weight: 600;
-        color: #e5e7eb;
+        color: #1d4ed8;
         margin-bottom: 0.15rem;
     }
     .stage-temp {
         font-size: 0.95rem;
-        color: #e5e7eb;
+        color: #3b82f6;
     }
     .stage-status-normal {
         font-size: 0.8rem;
@@ -97,7 +98,7 @@ st.markdown(
     .footer-note {
         margin-top: 2rem;
         font-size: 0.8rem;
-        color: #6b7280;
+        color: #60a5fa;
     }
     </style>
 
@@ -411,4 +412,3 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True,
 )
-
